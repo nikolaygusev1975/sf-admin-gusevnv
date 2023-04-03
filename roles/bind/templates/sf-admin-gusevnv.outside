@@ -1,0 +1,19 @@
+$TTL 14400
+
+sf-admin-gusevnv.outside.     IN      SOA     ns.sf-admin-gusevnv.outside. admin.sf-admin-gusevnv.outside. (
+        2023031201      ; Serial
+        10800           ; Refresh
+        3600            ; Retry
+        604800          ; Expire
+        604800          ; Negative Cache TTL
+)
+
+                IN      NS      ns.sf-admin-gusevnv.outside.
+                IN      NS      ns2.sf-admin-gusevnv.outside.
+
+@               IN      A       192.168.240.202
+ns              IN      A       192.168.240.202
+ns2             IN      A       192.168.240.202
+zabbix          IN      A       192.168.240.201
+elk             IN      A       192.168.240.203
+www             IN      CNAME   sf-admin-gusevnv.outside. 

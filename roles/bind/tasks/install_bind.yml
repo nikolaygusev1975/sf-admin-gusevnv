@@ -1,0 +1,44 @@
+---
+- name: Install bind
+  hosts: name_servers
+  become: yes
+  debugger: on_failed
+  tasks:
+
+  - name: Install bind on Ubuntu
+    apt:
+      name: bind9
+      state: present
+    when: ansible_os_family == 'Debian'
+
+  - name: Copy zone configuration files
+    copy:
+      src: "{{ item }}"
+      dest: "/var/cache/bind/master/"
+    with_items:
+      - "../templates/sf-admin-gusevnv.local"
+      - "../templates/sf-admin-gusevnv.outside"
+
+  - name: Copy bind configuration files
+    copy:
+      src: "{{ item }}"
+      dest: "/etc/bind/"
+    with_items:
+      - "../templates/named.conf"
+      - "../templates/named.conf.local"
+      - "../templates/named.conf.options"
+
+  - name: Stop bind
+    service:
+      name: named
+      state: stopped
+      enabled: no
+    ignore_errors: yes
+
+  - name: Start bind
+    service:
+      name: named
+      state: started
+      enabled: yes
+    ignore_errors: yes
+

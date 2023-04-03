@@ -1,0 +1,22 @@
+//
+// Do any local configuration here
+//
+
+// Consider adding the 1918 zones here, if they are not used in your
+// organization
+//include "/etc/bind/zones.rfc1918";
+zone "sf-admin-gusevnv.local" {
+        type master;
+        file "master/sf-admin-gusevnv.local";
+        allow-transfer { none; };
+        allow-update { none; };
+	allow-query { internal; };
+};
+
+zone "sf-admin-gusevnv.outside" {
+        type master;
+        file "master/sf-admin-gusevnv.outside";
+        allow-transfer { none; };
+        allow-update { none; };
+	allow-query { any; };
+};
