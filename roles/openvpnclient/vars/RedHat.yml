@@ -1,0 +1,4 @@
+---
+service_name : openvpn-client
+config_path : /etc/openvpn/client
+

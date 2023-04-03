@@ -1,0 +1,104 @@
+---
+- name: Install OpenVPN Client
+  hosts: openvpn_clients
+  become: yes
+  debugger: on_failed
+  tasks:
+
+  - name: Include vars for os family
+    include_vars:
+      file: "../vars/{{ ansible_os_family }}.yml"
+  - name: Install requred packages for OpenVPN on CentOS 8
+    yum:
+      name: "{{ item }}"
+      state: present
+    loop:
+      - epel-release
+      - make
+      - openvpn
+    when: ansible_os_family == "RedHat" and ansible_distribution_major_version == "8"
+
+  - name: Clone update-systemd-resolved on CentOS 8
+    git:
+      repo: 'https://github.com/jonathanio/update-systemd-resolved.git'
+      dest: /var/update-systemd-resolved
+    when: ansible_os_family == "RedHat" and ansible_distribution_major_version == "8"
+
+  - name: Make update-systemd-resolved on CentOS 8
+    shell: cd /tmp/update-systemd-resolved && make && make install
+    when: ansible_os_family == "RedHat" and ansible_distribution_major_version == "8"
+
+  - name: Start systemd-resolved on CentOS 8 
+    service:
+      name:  systemd-resolved
+      state: started
+      enabled: yes
+    when: ansible_os_family == "RedHat" and ansible_distribution_major_version == "8"
+    ignore_errors: yes
+
+  - name: Change nsswitch.conf on CentOS 8
+    lineinfile:
+      path: /etc/nsswitch.conf
+      regexp: '^hosts:\s*files dns myhostname'
+      line: "hosts: files resolve dns myhostname"
+    when: ansible_os_family == "RedHat" and ansible_distribution_major_version == "8"
+
+    #  - name: Install OpenVPN on CentOS 8
+    #yum:
+    #  name: openvpn
+    #  state: present
+    #when: ansible_os_family == "RedHat" and ansible_distribution_major_version == "8"
+
+  - name: Install OpenVPN and openvpn-systemd-resolved on Ubuntu
+    apt:
+      name: "{{ item }}"
+      state: present
+    loop:
+      - openvpn
+      - openvpn-systemd-resolved
+    when: ansible_os_family == 'Debian'
+
+  - name: Copy OpenVPN Client configuration file
+    template:
+      src: "../templates/{{ ansible_hostname }}.conf"
+      dest: "{{ config_path  }}/{{ ansible_hostname }}.conf"
+      #    when: ansible_distribution == 'Ubuntu'
+      
+      #  - name: Copy OpenVPN Client configuration file on CentOS 8
+      #template:
+      #src: "../templates/{{ ansible_hostname }}.conf"
+      #dest: "/etc/openvpn/client/{{ ansible_hostname }}.conf"
+      #when: ansible_os_family == "RedHat" and ansible_distribution_major_version == "8"
+
+  - name: Change OpenVPN Client conf file on CentOS 8
+    lineinfile:
+      path: "{{ config_path  }}/{{ ansible_hostname }}.conf"
+      insertafter: 'script-security 2'
+      line: "setenv PATH /usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
+    when: ansible_os_family == "RedHat" and ansible_distribution_major_version == "8"
+
+  - name: Change OpenVPN Client conf file on CentOS 8
+    lineinfile:
+      line: "{{ item.line }}"
+      regexp: "{{ item.regexp }}"
+      path: "{{ config_path  }}/{{ ansible_hostname }}.conf"
+    loop:
+      - regexp: '^up /etc/openvpn'
+        line: "up /usr/bin/update-systemd-resolved"
+      - regexp: '^down /etc/openvpn'
+        line: "down /usr/bin/update-systemd-resolved"
+    when: ansible_os_family == "RedHat" and ansible_distribution_major_version == "8"
+
+  - name: Stop OpenVPN Client
+    service:
+      name: "{{ service_name }}@{{ ansible_hostname }}"
+      state: stopped
+      enabled: no
+    ignore_errors: yes
+
+  - name: Start OpenVPN Client
+    service:
+      name: "{{ service_name }}@{{ ansible_hostname }}"
+      state: started
+      enabled: yes
+    ignore_errors: yes
