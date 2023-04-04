@@ -13,7 +13,7 @@ zone "sf-admin-gusevnv.local" {
 	allow-query { internal; };
 };
 
-zone "sf-admin-gusevnv.outside" {
+zone "178.154.204.33.nip.io" {
         type master;
         file "master/178.154.204.33.nip.io";
         allow-transfer { none; };
