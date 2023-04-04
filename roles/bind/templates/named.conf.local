@@ -15,7 +15,7 @@ zone "sf-admin-gusevnv.local" {
 
 zone "sf-admin-gusevnv.outside" {
         type master;
-        file "master/sf-admin-gusevnv.outside";
+        file "master/178.154.204.33.nip.io";
         allow-transfer { none; };
         allow-update { none; };
 	allow-query { any; };
