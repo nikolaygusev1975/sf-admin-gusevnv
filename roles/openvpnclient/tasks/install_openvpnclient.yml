@@ -22,7 +22,7 @@
   - name: Clone update-systemd-resolved on CentOS 8
     git:
       repo: 'https://github.com/jonathanio/update-systemd-resolved.git'
-      dest: /var/update-systemd-resolved
+      dest: /tmp/update-systemd-resolved
     when: ansible_os_family == "RedHat" and ansible_distribution_major_version == "8"
 
   - name: Make update-systemd-resolved on CentOS 8
