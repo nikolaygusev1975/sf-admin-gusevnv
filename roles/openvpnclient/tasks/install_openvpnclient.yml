@@ -14,6 +14,7 @@
       state: present
     loop:
       - epel-release
+      - git
       - make
       - openvpn
     when: ansible_os_family == "RedHat" and ansible_distribution_major_version == "8"
